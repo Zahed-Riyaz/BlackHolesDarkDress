@@ -789,23 +789,55 @@ def GetDressedPBH_fromfile(nDM_inner, M_PBH,  a,  halofile_root, verbose=False):
     #M_PBH = edd.M_PBH
 
     #Calculate how many halo files we need to load
+    # Each halo file contains 2**4 DM particles, so nHalos is the
+    # number of files we will sample from (with replacement if
+    # necessary).
     nHalos = nDM_inner/(2**4)
 
-    #Add the black hole                                                                                                                                      
+    #Add the black hole
     mlist = np.zeros(1) + M_PBH
     xlist = np.zeros((1,3))
     vlist = np.zeros((1,3))
 
-    halolist = list(range(1,64))
+    # build a list of available halo IDs by inspecting the filesystem
+    import glob, os
+    pattern = halofile_root + "_h*.txt"
+    files = glob.glob(pattern)
+    if not files:
+        raise IOError("No halo files found with pattern %s" % pattern)
+
+    # extract the numerical suffix from the filenames
+    halolist = []
+    for f in files:
+        base = os.path.basename(f)
+        try:
+            hstr = base.split('_h')[-1].split('.txt')[0]
+            halolist.append(int(hstr))
+        except ValueError:
+            continue
+
+    if not halolist:
+        raise IOError("Unable to parse any halo IDs from files: %s" % files)
+
+    # randomize order so different draws use different files
     random.shuffle(halolist)
+
+    # if we need more halos than exist, we'll sample with replacement
+    use_list = []
+    if nHalos <= len(halolist):
+        use_list = halolist[:nHalos]
+    else:
+        # cycle through the list repeatedly
+        for i in range(nHalos):
+            use_list.append(halolist[i % len(halolist)])
+
     #print nHalos
 
-    for i in range(nHalos):
-        hID = halolist[i]
+    for hID in use_list:
         halofile = halofile_root + "_h" + str(hID) + ".txt"
         
-        if (verbose):
-            "Loading halofile:", halofile
+        if verbose:
+            print("Loading halofile:", halofile)
 
         xvals, yvals, zvals, vxvals, vyvals, vzvals, mvals = np.loadtxt(halofile, unpack=True)
         mlist = np.append(mlist, mvals/nHalos) #Make sure we divide through to get the correct mass

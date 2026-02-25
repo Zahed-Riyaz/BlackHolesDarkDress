@@ -1,5 +1,7 @@
 ### this is an example of how to generate an initial condition file
 
+from __future__ import print_function
+
 import numpy as np
 import pygadgetic
 #-------------
@@ -53,15 +55,15 @@ rdat = np.loadtxt("distributions/Decoupling_M=" + str(int(M_PBH)) + "Msun.txt")
 r_interp = interp1d(rdat[:,0], rdat[:,1], kind = 'linear')
 r_tr = r_interp(a)
 
-print "  Semi-major axis a (pc):", a
-print "  Eccentricity:", e
-print "  Softening length (pc):", r_soft
-print "  "
-print "  Truncation radius r_tr (pc):", r_tr
-print "  Halo mass (M_solar):", M_PBH*(r_tr/r_eq)**1.5
-print "  "
-print "  Apoapsis:", (1+e)*a
-print "  Periapsis:",(1-e)*a
+print("  Semi-major axis a (pc):", a)
+print("  Eccentricity:", e)
+print("  Softening length (pc):", r_soft)
+print()
+print("  Truncation radius r_tr (pc):", r_tr)
+print("  Halo mass (M_solar):", M_PBH*(r_tr/r_eq)**1.5)
+print()
+print("  Apoapsis:", (1+e)*a)
+print("  Periapsis:",(1-e)*a)
 
 try:
     f = open('../run/ICs.txt','w')
@@ -74,9 +76,9 @@ try:
     f.write('e    %f\n'%(e,))
     f.close()
 except IOError:
-    print "File '../run/ICs.txt' not found - continuing anyway..."
+    print("File '../run/ICs.txt' not found - continuing anyway...")
 
-print "  "
+print()
 
 #PBH+Halo mass
 Mhalo = M_PBH+M_PBH*(r_tr/r_eq)**1.5
@@ -87,22 +89,22 @@ scaling = 1e-5
 #mu in units of pc (km/s)^2
 #a in units of pc
 T = 2*np.pi*np.sqrt(a**3*(3.086e13)**2/mu)/3.15576e13 
-print "  Orbital period (Myr):", T
-print "  Orbital period (simulation time):",T/(0.019139*scaling)
+print("  Orbital period (Myr):", T)
+print("  Orbital period (simulation time):",T/(0.019139*scaling))
 
 vapo = 0.5*np.sqrt((1.0-e)*mu/((1.0+e)*a))
-print "  Initial speed:", vapo
+print("  Initial speed:", vapo)
 
 
 halofile_root = "halos/lN_4_rsoft_"+str(r_soft)+"_deltaRm" + str(delta_Rm) + "_M" + str(int(M_PBH)) + "_a_" + "{0:.3f}".format(a)
 
-print "  First Halo:"
+print("  First Halo:")
 mlist1, xlist1, vlist1 = PBH.GetDressedPBH_fromfile(nDM_inner, M_PBH, a, halofile_root, verbose=True)
 
 xlist1 += np.asarray([0.5*a*e, 0.5*a*np.sqrt(1-e**2), 0]).T
 vlist1 += np.asarray([-vapo*(1+e)/np.sqrt(1-e**2), 0, 0]).T
 
-print "  Second Halo:"
+print("  Second Halo:")
 mlist2, xlist2, vlist2 = PBH.GetDressedPBH_fromfile(nDM_inner, M_PBH, a, halofile_root, verbose=True)
 
 xlist2 += np.asarray([-0.5*a*e, -0.5*a*np.sqrt(1-e**2), 0]).T
@@ -137,15 +139,15 @@ for i in range(np.sum(n_particles)):
     #print mlist[i]
     Llist[i,:] = mlist_sorted[i]*np.cross(xlist_sorted[i,:], vlist_sorted[i,:])
 
-print " "
-print "Ang mom of PBHs:", np.sum(Llist[:2,:], axis=0)
-print "Ang mom of DM:", np.sum(Llist[2:,:], axis=0)
-print " "
+print()
+print("Ang mom of PBHs:", np.sum(Llist[:2,:], axis=0))
+print("Ang mom of DM:", np.sum(Llist[2:,:], axis=0))
+print()
 #print 0.0003073*vapo/apo, M_PBH*vapo*apo
 
-print "  Number of species:", n_species
-print "  Particles masses:", np.sort(mvals)[::-1]
-print "  Number of particles:", n_particles
+print("  Number of species:", n_species)
+print("  Particles masses:", np.sort(mvals)[::-1])
+print("  Number of particles:", n_particles)
 
 ##define number of particles                                                                                                                                  
 npart = np.zeros(6, dtype='int')
@@ -175,7 +177,7 @@ my_header.NumPart_Total = np.array(npart)
 #id                                                                                                                                                           
 my_body.id[:]=np.arange(0,total_number_of_particles) #generate an array from 0 to total_number_of_particles     
 
-print "  Printing to file..."
+print("  Printing to file...")
 ##now writes the initial condition file                                                                                                                       
 try:
     my_name="../run/PBH1.dat"

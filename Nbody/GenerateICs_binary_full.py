@@ -74,9 +74,9 @@ try:
     f.write('e    %f\n'%(e,))
     f.close()
 except IOError:
-    print "File '../run/ICs.txt' not found - continuing anyway..."
+    print("File '../run/ICs.txt' not found - continuing anyway...")
 
-print "  "
+print()
 
 #PBH+Halo mass
 Mhalo = M_PBH+M_PBH*(r_tr/r_eq)**1.5

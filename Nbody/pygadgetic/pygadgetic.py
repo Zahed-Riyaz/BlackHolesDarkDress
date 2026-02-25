@@ -98,17 +98,17 @@ class Body:
            rho=False, ne=False, nh=False, hsml=False,
            acce=False, endt=False, tstp=False):
 
-        npart=np.array(npart) #make sure it is a numpy array
-        total_number_of_particles = np.sum(npart,dtype="float64")
-        gas_particles=npart[0] #number of gas particles
+        npart = np.array(npart, dtype=np.int64) #make sure it is a numpy array of ints
+        total_number_of_particles = int(np.sum(npart))
+        gas_particles = int(npart[0]) #number of gas particles
 
-        if total_number_of_particles != 0. :
-            self.pos = np.zeros([total_number_of_particles,3]) #Positions
-            self.vel = np.zeros([total_number_of_particles,3]) #Velocities
-            self.id  = np.zeros(total_number_of_particles)     #Particle ID's
-            self.mass =  np.zeros(total_number_of_particles)   #Masses
+        if total_number_of_particles > 0:
+            self.pos = np.zeros((total_number_of_particles,3), dtype=float) #Positions
+            self.vel = np.zeros((total_number_of_particles,3), dtype=float) #Velocities
+            self.id  = np.zeros(total_number_of_particles, dtype=float)     #Particle ID's
+            self.mass =  np.zeros(total_number_of_particles, dtype=float)   #Masses
         else:
-            raise ValueError, "There are no particles !"
+            raise ValueError("There are no particles !")
 
         self.u =  np.zeros(gas_particles)                  #Internal energy per unit mass
 
