@@ -5,8 +5,6 @@ import random
 
 import math
 
-from tqdm import tqdm
-
 import os.path
 from scipy.integrate import quad, cumtrapz
 from scipy.interpolate import interp1d
@@ -545,7 +543,7 @@ def AddDressedPBH_seg( x0, v0, r_soft, M_PBH, a, N_inner = 100,delta_Rm = 50, ve
             #DM velocities
             print "   Sampling DM velocities..."
             vvals = np.zeros(nDM)
-            for ind in tqdm(range(nDM)):
+            for ind in range(nDM):
                 r = rvals[ind]
                 #Now sample f(v) at given r to get the speed v
                 found = 0
