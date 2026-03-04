@@ -1,6 +1,10 @@
 setuptools==44.1.1
 pip==20.3.4
-numpy==1.16.6 
-scipy==1.2.3 
+numpy==1.16.6
+scipy==1.2.3
 matplotlib==2.2.5
 sympy==1.5.1
+# pygadgetreader is not on PyPI for Python2; install from GitHub
+# either with conda: `conda install -c conda-forge pygadgetreader`
+# or via pip using the git URL below
+git+https://github.com/jveitchmichaelis/pygadgetreader.git@master#egg=pygadgetreader
