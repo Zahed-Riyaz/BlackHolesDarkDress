@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from pygadgetreader import *
 
+import os
 import matplotlib.pyplot as pl
 
 import numpy as np
@@ -84,7 +85,8 @@ dinds = np.abs(x2[:,2]) < zh
 p2 = ax.scatter(x2[dinds,0], x2[dinds,1], x2[dinds,2],c='DodgerBlue', marker='.', alpha=0.3, lw=0)
 pPBH1 = ax.scatter(x[-1,0], x[-1,1],x[-1,2],c='white', marker='.', alpha=aPBH, s=100.0)
 pPBH2 = ax.scatter(x[-2,0], x[-2,1],x[-2,2],c='white', marker='.', alpha=aPBH, s=100.0)
-pTrack, = ax.plot(x[-1,0], x[-1,1], zs=x[-1,(2,)],c='white', linestyle='-', alpha=0.5,lw=2)
+# initialise the track as a one-point line so that mplot3d gets 1D arrays, not scalars
+pTrack, = ax.plot([x[-1,0]], [x[-1,1]], zs=[x[-1,2]], c='white', linestyle='-', alpha=0.5, lw=2)
 
 pScale2, = ax.plot([-5e-3, 5e-3], [1.3e-2,1.3e-2], zs=[0,0], c='white', linestyle='-', lw=2)
 
@@ -117,10 +119,11 @@ ax.set_zlim(-lims*0.75, lims*0.75)
 
 ax.set_axis_off()
 
-xx, yy = np.meshgrid(5*np.linspace(-lims, lims, 11),5*np.linspace(-lims, lims, 11) )
-z = 0
+xx, yy = np.meshgrid(5*np.linspace(-lims, lims, 11),5*np.linspace(-lims, lims, 11))
+# make z a 2D array matching xx/yy so plot_surface gets the right shape
+z = np.zeros_like(xx)
 
-ax.plot_surface(xx, yy, z, alpha=0.9,color='k')
+ax.plot_surface(xx, yy, z, alpha=0.9, color='k')
 
 #ax.add_artist(circle1)
 #ax.add_artist(circle2)
@@ -192,6 +195,28 @@ def animate(ind):
     
 
 
-anim = animation.FuncAnimation(fig, animate, 
-                               frames=Nframes)
-anim.save('../movies/2D_binary_' + runID + '.mp4', fps=70, bitrate=-1,codec='libx264',extra_args=['-pix_fmt', 'yuv420p'], dpi=300)
+anim = animation.FuncAnimation(fig, animate, frames=Nframes)
+
+# Determine project root (one level up from this file) and movies directory
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+movies_dir = os.path.join(project_root, 'movies')
+
+# Ensure the movies directory exists
+if not os.path.isdir(movies_dir):
+    try:
+        os.makedirs(movies_dir)
+    except OSError:
+        pass
+
+outfile_base = os.path.join(movies_dir, '2D_binary_' + runID)
+
+# Use PillowWriter to avoid subprocess/ffmpeg issues on some systems.
+# If that fails (e.g. missing PillowWriter in this Matplotlib version),
+# fall back to saving a single PNG frame instead of using ffmpeg.
+try:
+    from matplotlib.animation import PillowWriter
+    writer = PillowWriter(fps=70)
+    anim.save(outfile_base + '.gif', writer=writer, dpi=300)
+except Exception as e:
+    print("Animation saving failed (GIF). Falling back to single PNG. Error:", e)
+    fig.savefig(outfile_base + '_frame0.png', dpi=300)
